@@ -46,7 +46,7 @@ The full procedure is in `operations/use.md`.
     router/playbooks/SKILL.md  the small skill that tells a Claude Code agent this library exists
     pb                         the command
     tests/                     tests for the command and the checker
-    .cache/                    bare clones of the sources; not in git
+    .cache/                    bare clones of the sources and the local record of lookups; not in git
 
 To make a Claude Code agent aware of the library, copy the folder `router/playbooks/` into `~/.claude/skills/`. For any other harness, point the agent at this file.
 
@@ -57,7 +57,7 @@ To make a Claude Code agent aware of the library, copy the folder `router/playbo
 | `./pb find "<task>"` | Ranks entries against a task description. Nothing below the threshold is shown. `--sources` adds the upstream packs, `--all` includes retired entries. |
 | `./pb show <id>` | Prints an entry with its status, verified date and approval classes. `<source>:<path>` prints unreviewed source text, marked as such. |
 | `./pb log <event> ...` | Appends an event to the log. The event types and their fields are in section 5 of the contract. |
-| `./pb stats` | Uses and outcomes per entry, misses, and the numbers for the review on 2026-11-24. |
+| `./pb stats` | Uses and outcomes per entry, misses, and the numbers for the review on 2026-11-24. On the machine it runs on it also lists what was searched and opened, so a lookup that never got a logged outcome is visible. |
 | `./pb build` | Regenerates the index, the catalogue, the statistics and the changelog. |
 | `./pb check` | Checks the whole library against the contract. Exit code 0 when clean. `--stale` also lists entries not verified for 180 days. |
 | `./pb source add <id> <url> <commit>` | Records an upstream pack at a pinned commit, stores its licence and writes its snapshot. |
@@ -91,6 +91,7 @@ On 2026-11-24, six weeks after version 1, `./pb stats` decides. Fewer than ten `
 
 - It is consulted only when an agent thinks to look. It does not help an agent that fails to read what it was given.
 - Outcomes are the agent's own report unless the owner confirms them, and an agent tends to rate its own work well. The `changed` field exists so a later reader can judge the claim.
-- Search is plain keyword ranking, kept small so it can be replaced.
+- A lookup that is never followed by a logged outcome shows only in the local record, on the machine where it happened.
+- Search is plain keyword ranking, kept small so it can be replaced. A task described in words the entry does not use is not found.
 - The snapshot of a source keeps names and descriptions. The full text of skills that were not curated exists only in `.cache/` and is lost if the cache is deleted after the upstream has gone.
 - The trust rules limit damage and make changes traceable. They do not prove an entry is safe. Section 6 of the contract says what holds and what does not.

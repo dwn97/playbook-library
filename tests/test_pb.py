@@ -16,8 +16,12 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def pb(root, *args):
+def pb(root, *args, trace=False):
     env = dict(os.environ, PB_ROOT=root, PB_ACTOR="test")
+    if trace:
+        env.pop("PB_NO_TRACE", None)
+    else:
+        env["PB_NO_TRACE"] = "1"      # tests must not write to the real record of lookups
     return subprocess.run([sys.executable, os.path.join(ROOT, "pb"), *args],
                           capture_output=True, text=True, env=env)
 
@@ -36,6 +40,10 @@ class Library(unittest.TestCase):
 
     def test_find_vue(self):
         self.assertEqual(self.top("state management in a Vue 3 app"), "vue-patterns")
+
+    def test_find_matches_plural_forms(self):
+        self.assertEqual(self.top("move files in several repositories"), "bulk-change-across-repos")
+        self.assertEqual(self.top("move files in one repository"), "bulk-change-across-repos")
 
     def test_find_nothing_for_an_unrelated_task(self):
         self.assertEqual(pb(ROOT, "find", "write a sonnet").stdout, "")
@@ -262,6 +270,38 @@ class Checker(unittest.TestCase):
         self.assertIn("is not an entry", r.stderr)
         r = pb(self.root, "log", "use", "vue-patterns", "--task", "t", "--outcome", "great", "--changed", "c")
         self.assertIn("must be one of", r.stderr)
+
+    def test_log_refuses_personal_details(self):
+        r = pb(self.root, "log", "use", "vue-patterns", "--task", "form for someone@example.org",
+               "--outcome", "helped", "--changed", "c")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("email address", r.stderr)
+        r = pb(self.root, "log", "miss", "--query", "q", "--task", "files in /Users/someone/work")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("home-directory path", r.stderr)
+        self.clean()
+
+    def test_checker_scans_the_log_text(self):
+        line = ('{"eid": "x-1", "ts": "2026-10-13T00:00:00Z", "event": "miss", "actor": "test", '
+                '"query": "q", "task": "mail to someone@example.org"}\n')
+        self.append(self.path("log", "events.jsonl"), line)
+        pb(self.root, "build")
+        self.fails("email address in the log text")
+
+    def test_lookups_are_recorded_locally_and_shown_in_stats(self):
+        record = self.path(".cache", "lookups.jsonl")
+        pb(self.root, "find", "write a sonnet")
+        self.assertFalse(os.path.exists(record))             # tracing is off for tests by default
+        pb(self.root, "find", "write a sonnet", trace=True)
+        pb(self.root, "find", "state management in a Vue 3 app", trace=True)
+        pb(self.root, "show", "vue-patterns", trace=True)
+        pb(self.root, "show", "vue-patterns", trace=True)    # a second view soon after counts once
+        self.assertTrue(os.path.exists(record))
+        stats = pb(self.root, "stats").stdout
+        self.assertIn("Searches: 2. Returned nothing: 1.", stats)
+        self.assertIn("Entries opened: 1", stats)
+        self.assertIn("| `vue-patterns` | 1 | 0 |", stats)
+        self.clean()                                         # the record is local and never part of the check
 
     def test_log_lines_are_only_added(self):
         def git(*args):

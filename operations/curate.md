@@ -5,7 +5,7 @@ The maintenance pass. Run it on request, or on a schedule once the owner sets on
 ## 1. Mechanical
 
 1. `./pb check --stale`. Fix every violation before anything else, following `operations/check.md`.
-2. `./pb stats`. Read the table, the list of entries never used, and the searches where nothing fit.
+2. `./pb stats`. Read the table, the list of entries never used, and the searches where nothing fit. On the machine where the work happens it also shows the local record of lookups: searches that returned nothing without a logged miss, and entries opened more often than outcomes were logged. Ask the owner about those.
 
 ## 2. Entries
 

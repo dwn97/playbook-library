@@ -1,6 +1,6 @@
 # Contract
 
-Version 1, 2026-10-13.
+Version 2, 2026-10-13.
 
 This file defines what a valid library is. `./pb check` enforces it and exits non-zero on any violation. The checker reads the tables in sections 3 to 7 directly, so a rule changed here changes what is enforced, and a field listed here that the checker has no validator for fails the check.
 
@@ -14,6 +14,7 @@ Changing this file needs the owner's approval, a `decide` event in the log with 
 | `sources/<source>.index.json` | snapshot of the pack at the pinned commit: path, name, description and blob hash of every skill in it | `./pb source add`; never edited |
 | `sources/licenses/<source>.txt` | the pack's licence text | `./pb source add` |
 | `.cache/<source>.git` | bare clone of the pack at the pinned commit; ignored by git | `./pb source fetch` |
+| `.cache/lookups.jsonl` | a record of every search and every opened entry on this machine; ignored by git | `./pb find` and `./pb show` |
 | `playbooks/<id>/` | the curated layer | agents, under sections 3 to 6 |
 | `log/events.jsonl` | every use, change and decision | `./pb log`; lines are only added |
 | `index.json`, `CATALOG.md`, `STATS.md`, `CHANGELOG.md` | generated views | `./pb build`; never edited by hand |
@@ -106,6 +107,7 @@ Every event carries `eid`, `ts`, `event`, and `actor` (who wrote it: model and h
 - `outcome` is `helped`, `partly` or `no`. `changed` says in one line what the entry made the agent do that it would not have done otherwise. If nothing can be named, the outcome is `no`.
 - A `use` event may carry `confirmed: true` when the owner gave the verdict. Without it, the outcome is the agent's own report.
 - `task` names the kind of work ("pytest fixtures for a FastAPI service"), never who it was for.
+- The log holds no email address, no home-directory path and no invisible characters. `./pb log` refuses to write an event that contains one, and the checker fails on one.
 - On a `use` event, `id` may name a source skill as `<source>:<path>` when an agent read unreviewed source text.
 - `reviewer` is `owner` or `independent`. `verdict` is `pass` or `changes`.
 - `uses` lists the `eid`s of the `use` events a promotion rests on; `review` is the `eid` of the review.
