@@ -6,6 +6,8 @@ It holds procedures only. Facts about people and projects, preferences and sessi
 
 Version 1, started 2026-10-13. The rules are in [CONTRACT.md](CONTRACT.md). The entries are listed by topic in `CATALOG.md`.
 
+An AI agent built the first version in one session, and agents maintain it. Every entry is a `candidate`, which means unproven, until logged use and a review say otherwise. "About this repository" below has the details.
+
 Needs Python 3.9 or later and git. No packages.
 
 ## If you are an agent with a task
@@ -48,7 +50,7 @@ The full procedure is in `operations/use.md`.
     tests/                     tests for the command and the checker
     .cache/                    bare clones of the sources and the local record of lookups; not in git
 
-To make a Claude Code agent aware of the library, copy the folder `router/playbooks/` into `~/.claude/skills/`. For any other harness, point the agent at this file.
+To make a Claude Code agent aware of the library, copy the folder `router/playbooks/` into `~/.claude/skills/`. The router assumes the library is at `~/Projects/playbook-library/`; change the paths in it if yours is elsewhere. For any other harness, point the agent at this file.
 
 ## Commands
 
@@ -86,6 +88,14 @@ Run on request for now, following `operations/curate.md`: `./pb check` first, th
 ## How this library is judged
 
 On 2026-11-24, six weeks after version 1, `./pb stats` decides. Fewer than ten `use` events, or fewer than two in three of them marked `helped`, and the library is frozen as it is with no further work put into it. Frozen means no more building or curating; everything in it stays readable and searchable. This was set before the first entry was written.
+
+## About this repository
+
+- **Who built it.** An AI coding agent (Claude, run in Claude Code) wrote the first version in a single session on 2026-10-13, at the owner's direction and after the owner had read and approved the contract and this file. Agents maintain it under the rules in `CONTRACT.md`. The owner approves changes to the contract and gives the verdict on promotions.
+- **What state it is in.** Ten entries, all `candidate`. `STATS.md` shows how often each has been used and whether it helped. `log/events.jsonl` holds every use, change and decision, mistakes included. Nothing here has yet been measured to improve an agent's results. "How this library is judged" says what happens if it does not.
+- **Where the entries come from.** Four are adapted from [ECC](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT), cut down and corrected; their frontmatter names the exact upstream file and commit. Six are written from the owner's own work. `sources/ecc.index.json` lists the names and descriptions of ECC's 311 skills so that they can be searched. That text is ECC's, it has not been reviewed, and it stays under ECC's licence in `sources/licenses/ecc.txt`.
+- **Changes from outside.** Issues are welcome. Entries are instructions that agents follow, so a change to an entry from outside is not merged without the review the contract requires for any entry.
+- **Licence.** MIT, see `LICENSE`. The parts adapted from ECC remain under ECC's MIT licence.
 
 ## Limits
 
