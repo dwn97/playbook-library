@@ -1,0 +1,9 @@
+Parts of this repository are adapted from ECC (https://github.com/affaan-m/ECC),
+Copyright (c) 2026 Affaan Mustafa, under the MIT License.
+
+- The entries python-testing, vue-patterns, react-patterns and tdd-workflow are
+  adaptations of ECC skills. Each names its upstream file and commit in its
+  frontmatter.
+- sources/ecc.index.json holds the names and descriptions of ECC's skills at
+  the pinned commit, unchanged.
+- ECC's licence text is in sources/licenses/ecc.txt.

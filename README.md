@@ -95,7 +95,7 @@ On 2026-11-24, six weeks after version 1, `./pb stats` decides. Fewer than ten `
 - **What state it is in.** Ten entries, all `candidate`. `STATS.md` shows how often each has been used and whether it helped. `log/events.jsonl` holds every use, change and decision, mistakes included. Nothing here has yet been measured to improve an agent's results. "How this library is judged" says what happens if it does not.
 - **Where the entries come from.** Four are adapted from [ECC](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT), cut down and corrected; their frontmatter names the exact upstream file and commit. Six are written from the owner's own work. `sources/ecc.index.json` lists the names and descriptions of ECC's 311 skills so that they can be searched. That text is ECC's, it has not been reviewed, and it stays under ECC's licence in `sources/licenses/ecc.txt`.
 - **Changes from outside.** Issues are welcome. Entries are instructions that agents follow, so a change to an entry from outside is not merged without the review the contract requires for any entry.
-- **Licence.** MIT, see `LICENSE`. The parts adapted from ECC remain under ECC's MIT licence.
+- **Licence.** MIT, see `LICENSE`. The parts adapted from ECC remain under ECC's MIT licence; `NOTICE` lists them.
 
 ## Limits
 
