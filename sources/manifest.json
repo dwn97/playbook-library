@@ -1,0 +1,13 @@
+{
+  "sources": [
+    {
+      "id": "ecc",
+      "url": "https://github.com/affaan-m/ECC",
+      "commit": "b92f181b3b748d1abbc2afd94af6aa7d8c8fca29",
+      "license": "MIT",
+      "skills": "skills/*/SKILL.md",
+      "added": "2026-10-13",
+      "status": "active"
+    }
+  ]
+}
