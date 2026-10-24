@@ -41,6 +41,22 @@
     },
     {
       "approval": [],
+      "compatibility": "Chrome or Chromium with --headless=new (checked with Chrome on macOS, 2026-10-24). Node 22 or later for the built-in WebSocket and fetch (checked on Node 24.11). Any language with a WebSocket client works the same way.",
+      "created": "2026-10-24",
+      "depends": [],
+      "description": "Use when you need to click through a local web app in a real browser (smoke test, screenshots, UI check) and no browser-automation package such as Playwright is available or approved.",
+      "hash": "b4aac196a9daea0cb0b1193094e9f004502198f80b8349d9aa919647eaadf1db",
+      "id": "drive-web-app-in-headless-chrome",
+      "name": "drive-web-app-in-headless-chrome",
+      "origin": "own",
+      "path": "playbooks/drive-web-app-in-headless-chrome/SKILL.md",
+      "status": "candidate",
+      "topic": "testing",
+      "updated": "2026-10-24",
+      "verified": "2026-10-24"
+    },
+    {
+      "approval": [],
       "compatibility": "Uses pdftotext and pdftoppm from poppler.",
       "created": "2026-10-13",
       "depends": [],
