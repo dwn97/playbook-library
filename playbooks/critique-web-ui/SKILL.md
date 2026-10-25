@@ -12,14 +12,14 @@ metadata:
   origin: "impeccable"
   origin-url: "https://github.com/pbakaus/impeccable"
   origin-commit: "936867543ac2576920d663cc9803597f6044f3ac"
-  origin-path: "plugin/skills/impeccable/reference/critique.md"
+  origin-path: "plugin/skills/impeccable/SKILL.md"
   approval: "none"
   depends: "drive-web-app-in-headless-chrome review-web-animations"
 ---
 
 # Critique a web UI with two isolated assessments
 
-Adapted from impeccable's critique command. The browser-evidence half here uses measurements any harness can make, plus, optionally, the taste-skill inspector (source `taste-skill`). Steps 7 to 9 are additions from a run on a three-look lesson UI.
+Adapted from impeccable's critique command (the skill's `reference/critique.md` at the pinned commit). The browser-evidence half here uses measurements any harness can make, plus, optionally, the taste-skill inspector (source `taste-skill`). Steps 7 to 9 are additions from a run on a three-look lesson UI.
 
 ## Steps
 
