@@ -41,3 +41,5 @@ Unreviewed upstream packs, searched with `./pb find --sources`.
 
 - `ecc` (active): 311 skills at `b92f181b`, MIT, https://github.com/affaan-m/ECC
 - `emil-skills` (active): 15 skills at `2d228630`, MIT, https://github.com/emilkowalski/skills
+- `impeccable` (active): 1 skills at `93686754`, Apache-2.0, https://github.com/pbakaus/impeccable
+- `taste-skill` (active): 1 skills at `12af471f`, MIT, https://github.com/Leonxlnx/taste-skill

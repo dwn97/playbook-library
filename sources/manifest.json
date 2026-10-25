@@ -17,6 +17,24 @@
       "skills": "skills/*/SKILL.md",
       "added": "2026-10-25",
       "status": "active"
+    },
+    {
+      "id": "impeccable",
+      "url": "https://github.com/pbakaus/impeccable",
+      "commit": "936867543ac2576920d663cc9803597f6044f3ac",
+      "license": "Apache-2.0",
+      "skills": "plugin/skills/*/SKILL.md",
+      "added": "2026-10-25",
+      "status": "active"
+    },
+    {
+      "id": "taste-skill",
+      "url": "https://github.com/Leonxlnx/taste-skill",
+      "commit": "12af471f627f866411b4bd785b19646d3672784c",
+      "license": "MIT",
+      "skills": "skills/*/SKILL.md",
+      "added": "2026-10-25",
+      "status": "active"
     }
   ]
 }
