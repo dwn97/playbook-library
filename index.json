@@ -41,6 +41,29 @@
     },
     {
       "approval": [],
+      "compatibility": "A way to start two isolated agents, a headless browser (see drive-web-app-in-headless-chrome) and Node 22+. Checked 2026-10-25 against impeccable 93686754 and taste-skill 12af471f.",
+      "created": "2026-10-25",
+      "depends": [
+        "drive-web-app-in-headless-chrome",
+        "review-web-animations"
+      ],
+      "description": "Use when asked to critique or review the design of a web page or app screen before shipping, and the result should be a ranked list of fixes rather than opinions.",
+      "hash": "3120a914056dc5c080eca1b663978cce10ef2cdd10148a84a99dc100f1de17ec",
+      "id": "critique-web-ui",
+      "license": "Apache-2.0",
+      "name": "critique-web-ui",
+      "origin": "impeccable",
+      "origin_commit": "936867543ac2576920d663cc9803597f6044f3ac",
+      "origin_path": "plugin/skills/impeccable/reference/critique.md",
+      "origin_url": "https://github.com/pbakaus/impeccable",
+      "path": "playbooks/critique-web-ui/SKILL.md",
+      "status": "candidate",
+      "topic": "frontend",
+      "updated": "2026-10-25",
+      "verified": "2026-10-25"
+    },
+    {
+      "approval": [],
       "compatibility": "Chrome or Chromium with --headless=new (checked with Chrome on macOS, 2026-10-24). Node 22 or later for the built-in WebSocket and fetch (checked on Node 24.11). Any language with a WebSocket client works the same way.",
       "created": "2026-10-24",
       "depends": [],
