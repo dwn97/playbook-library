@@ -8,6 +8,15 @@
       "skills": "skills/*/SKILL.md",
       "added": "2026-10-13",
       "status": "active"
+    },
+    {
+      "id": "emil-skills",
+      "url": "https://github.com/emilkowalski/skills",
+      "commit": "2d228630ba1446365f614a108cb8252f1feda202",
+      "license": "MIT",
+      "skills": "skills/*/SKILL.md",
+      "added": "2026-10-25",
+      "status": "active"
     }
   ]
 }

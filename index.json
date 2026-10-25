@@ -113,6 +113,28 @@
     },
     {
       "approval": [],
+      "compatibility": "Plain CSS and JavaScript in current Chrome and Safari (checked 2026-10-25). The checks apply to any framework; framework-specific shorthands are not covered.",
+      "created": "2026-10-25",
+      "depends": [
+        "drive-web-app-in-headless-chrome"
+      ],
+      "description": "Use when reviewing or polishing motion in a web UI (transitions, keyframes, scroll-driven scenes, requestAnimationFrame loops) before calling the UI finished.",
+      "hash": "b7fe79defe95953edf35caa36d86be87297ee0230a1aa6553ab9867f0e4f43af",
+      "id": "review-web-animations",
+      "license": "MIT",
+      "name": "review-web-animations",
+      "origin": "emil-skills",
+      "origin_commit": "2d228630ba1446365f614a108cb8252f1feda202",
+      "origin_path": "skills/review-animations/SKILL.md",
+      "origin_url": "https://github.com/emilkowalski/skills",
+      "path": "playbooks/review-web-animations/SKILL.md",
+      "status": "candidate",
+      "topic": "frontend",
+      "updated": "2026-10-25",
+      "verified": "2026-10-25"
+    },
+    {
+      "approval": [],
       "created": "2026-10-13",
       "depends": [],
       "description": "Use when a search, grep or count over files or logs returns nothing or a surprising number and a conclusion will rest on it.",
@@ -207,6 +229,16 @@
       "skills_indexed": 311,
       "status": "active",
       "url": "https://github.com/affaan-m/ECC"
+    },
+    {
+      "added": "2026-10-25",
+      "commit": "2d228630ba1446365f614a108cb8252f1feda202",
+      "id": "emil-skills",
+      "license": "MIT",
+      "skills": "skills/*/SKILL.md",
+      "skills_indexed": 15,
+      "status": "active",
+      "url": "https://github.com/emilkowalski/skills"
     }
   ]
 }
