@@ -121,7 +121,7 @@ What else the record shows:
 - **What state it is in.** Frozen since 2026-11-13. Thirteen entries, all `candidate`. `STATS.md` shows how often each was used and whether it helped. `log/events.jsonl` holds every use, change and decision, mistakes included. Nothing here has been measured to improve an agent's results, and by its own rule the library did not pass; "How this library is judged" has the numbers.
 - **Where the entries come from.** Four are adapted from [ECC](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT), cut down and corrected; their frontmatter names the exact upstream file and commit. Two more, added on 2026-10-25, are adapted the same way from [emil-skills](https://github.com/emilkowalski/skills) (MIT) and [impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0). Seven are written from the owner's own work. `sources/ecc.index.json` lists the names and descriptions of ECC's 311 skills so that they can be searched. That text is ECC's, it has not been reviewed, and it stays under ECC's licence in `sources/licenses/ecc.txt`.
 - **Changes from outside.** Issues are welcome. Entries are instructions that agents follow, so a change to an entry from outside is not merged without the review the contract requires for any entry.
-- **Licence.** MIT, see `LICENSE`. The parts adapted from ECC remain under ECC's MIT licence; `NOTICE` lists them.
+- **Licence.** MIT, see `LICENSE`. The parts adapted from ECC, emil-skills and impeccable, and the snapshots of all four sources, remain under their own licences (MIT, and Apache-2.0 for impeccable); `NOTICE` lists them.
 
 ## Limits
 

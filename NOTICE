@@ -1,5 +1,9 @@
-Parts of this repository are adapted from ECC (https://github.com/affaan-m/ECC),
-Copyright (c) 2026 Affaan Mustafa, under the MIT License.
+Parts of this repository are adapted from, or are snapshots of, the works
+below. Each stays under its own licence; the licence texts are in
+sources/licenses/.
+
+ECC (https://github.com/affaan-m/ECC)
+Copyright (c) 2026 Affaan Mustafa, MIT License.
 
 - The entries python-testing, vue-patterns, react-patterns and tdd-workflow are
   adaptations of ECC skills. Each names its upstream file and commit in its
@@ -7,3 +11,31 @@ Copyright (c) 2026 Affaan Mustafa, under the MIT License.
 - sources/ecc.index.json holds the names and descriptions of ECC's skills at
   the pinned commit, unchanged.
 - ECC's licence text is in sources/licenses/ecc.txt.
+
+emil-skills (https://github.com/emilkowalski/skills)
+Copyright (c) 2026 Emil Kowalski, MIT License.
+
+- The entry review-web-animations is an adaptation of the skill
+  review-animations. It names its upstream file and commit in its frontmatter.
+- sources/emil-skills.index.json holds the names and descriptions of the
+  pack's skills at the pinned commit, unchanged.
+- The licence text is in sources/licenses/emil-skills.txt.
+
+impeccable (https://github.com/pbakaus/impeccable)
+Copyright 2025 Paul Bakaus, Apache License, Version 2.0.
+
+- The entry critique-web-ui is an adaptation of impeccable's critique method.
+  It was changed from the original: shortened, restructured into this
+  library's entry format and extended with lessons from one run. It names its
+  upstream file and commit in its frontmatter.
+- sources/impeccable.index.json holds the name and description of the skill
+  at the pinned commit, unchanged.
+- The licence text is in sources/licenses/impeccable.txt. The upstream
+  NOTICE.md covers two platform reference files that nothing here derives
+  from.
+
+taste-skill (https://github.com/Leonxlnx/taste-skill)
+Copyright (c) 2026 Leonxlnx, MIT License.
+
+- No entry is adapted from it. sources/taste-skill.index.json holds the name
+  and description of the skill at the pinned commit, unchanged.
