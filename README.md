@@ -4,11 +4,11 @@ A library of procedures for coding and knowledge-work agents: short, checked ans
 
 It holds procedures only. Facts about people and projects, preferences and session notes belong elsewhere. It is also not a skill pack to install: nothing in it enters an agent's context until the agent asks for it.
 
-Version 1, started 2026-10-13, frozen on 2026-11-13. It did not meet the rule it was to be judged by: 23 logged uses, 10 of them marked `helped` (43%), where two in three were needed. "How this library is judged" below has the rule and the numbers. Everything in it stays readable and searchable; nothing more is built or curated.
+Version 1 ran from 2026-10-13 to 2026-11-13 and did not meet the rule it was to be judged by: 23 logged uses, 10 of them marked `helped` (43%), where two in three were needed. Version 2 started the same day on the owner's decision, with three changes, and is judged on 2026-12-25 by a stricter count. "How this library is judged" below has both rules and the numbers.
 
 The rules are in [CONTRACT.md](CONTRACT.md). The entries are listed by topic in `CATALOG.md`.
 
-An AI agent built the first version in one session, and agents maintained it until the freeze. Every entry is a `candidate`, which means unproven; none was promoted. "About this repository" below has the details.
+An AI agent built the first version in one session, and agents maintain it. Every entry is a `candidate`, which means unproven; none has been promoted. "About this repository" below has the details.
 
 Needs Python 3.9 or later and git. No packages.
 
@@ -85,13 +85,15 @@ This fetches that one commit into a bare repository, stores the licence and writ
 
 ## The maintenance pass
 
-Not run while the library is frozen. Until the freeze it ran on request, following `operations/curate.md`: `./pb check` first, then read `./pb stats` and the log. Promote entries that helped, retire those that were used and did not help, merge duplicates, re-verify old entries, compare each source's pin with its upstream as a diff, re-read this file and the contract against what the library now does, and report. Every promotion, retirement and dropped source cites log events. An entry that has not been needed yet stays; lack of use alone retires nothing.
+Run on request for now, following `operations/curate.md`: `./pb check` first, then read `./pb stats` and the log. Promote entries that helped, retire those that were used and did not help, merge duplicates, re-verify old entries, compare each source's pin with its upstream as a diff, re-read this file and the contract against what the library now does, and report. Every promotion, retirement and dropped source cites log events. An entry that has not been needed yet stays; lack of use alone retires nothing.
 
 ## How this library is judged
 
+### Version 1
+
 On 2026-11-24, six weeks after version 1, `./pb stats` decides. Fewer than ten `use` events, or fewer than two in three of them marked `helped`, and the library is frozen as it is with no further work put into it. Frozen means no more building or curating; everything in it stays readable and searchable. This was set before the first entry was written.
 
-### Verdict: frozen
+#### Verdict: frozen
 
 Recorded on 2026-11-13, eleven days before the date above, on the owner's instruction (`decide` event `20261112T162701Z-dbe242`; the log's timestamps are UTC).
 
@@ -113,12 +115,24 @@ What else the record shows:
 - Five of the 13 entries were never used: `critique-web-ui`, `python-testing`, `react-patterns`, `search-that-proves-it-ran`, `vue-patterns`.
 - Every outcome is the agent's own report. The owner confirmed none.
 
-`STATS.md` is still generated from the log, so a use logged after the verdict shows up there. It does not change the verdict.
+### Version 2
+
+Version 2 started on 2026-11-13 (`decide` event `20261112T165155Z-fe16d0`). The version 1 rule says a frozen library gets no further work. The owner chose to run one more version all the same; the version 1 verdict stands.
+
+Three changes and nothing else:
+
+1. Retrieval. The entries that were used in version 1, and `search-that-proves-it-ran`, are installed as skills, so the harness offers them by their descriptions and no search is needed. `./pb find` stays as the fallback for everything else.
+2. Content. `verify-agent-output` is retired under the existing rule: three uses, none helped. No entry is retired for lack of use. No new entry is written for now, so that misses can build up.
+3. `drive-web-app-in-headless-chrome` is rewritten from the notes on its nine uses.
+
+On 2026-12-25, six weeks after the build, `./pb stats` decides, and it counts only uses that were logged after the event above and that the owner has confirmed. Fewer than ten confirmed uses, or fewer than two in three of them confirmed as `helped`, and the library is frozen for good: there is no version 3. `partly` is not helped. A use the owner has not confirmed is reported and does not count. This was set before anything of version 2 was built.
+
+The owner confirms in batches. Halfway, on 2026-12-04, and again at judging, the uses that are not yet confirmed are put to the owner as a list, one line each, and each verdict is logged.
 
 ## About this repository
 
 - **Who built it.** An AI coding agent (Claude, run in Claude Code) wrote the first version in a single session on 2026-10-13, at the owner's direction and after the owner had read and approved the contract and this file. Agents maintain it under the rules in `CONTRACT.md`. The owner approves changes to the contract and gives the verdict on promotions.
-- **What state it is in.** Frozen since 2026-11-13. Thirteen entries, all `candidate`. `STATS.md` shows how often each was used and whether it helped. `log/events.jsonl` holds every use, change and decision, mistakes included. Nothing here has been measured to improve an agent's results, and by its own rule the library did not pass; "How this library is judged" has the numbers.
+- **What state it is in.** Version 1 was frozen on 2026-11-13; version 2 runs since then. Thirteen entries, all `candidate`. `STATS.md` shows how often each was used and whether it helped. `log/events.jsonl` holds every use, change and decision, mistakes included. Nothing here has been measured to improve an agent's results, and by its own rule version 1 did not pass; "How this library is judged" has the numbers.
 - **Where the entries come from.** Four are adapted from [ECC](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT), cut down and corrected; their frontmatter names the exact upstream file and commit. Two more, added on 2026-10-25, are adapted the same way from [emil-skills](https://github.com/emilkowalski/skills) (MIT) and [impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0). Seven are written from the owner's own work. `sources/ecc.index.json` lists the names and descriptions of ECC's 311 skills so that they can be searched. That text is ECC's, it has not been reviewed, and it stays under ECC's licence in `sources/licenses/ecc.txt`.
 - **Changes from outside.** Issues are welcome. Entries are instructions that agents follow, so a change to an entry from outside is not merged without the review the contract requires for any entry.
 - **Licence.** MIT, see `LICENSE`. The parts adapted from ECC, emil-skills and impeccable, and the snapshots of all four sources, remain under their own licences (MIT, and Apache-2.0 for impeccable); `NOTICE` lists them.
