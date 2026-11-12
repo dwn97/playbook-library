@@ -253,6 +253,103 @@ class Checker(unittest.TestCase):
         pb(self.root, "build")
         self.fails("ids are permanent")
 
+    # ---- installed entries (section 3) and the confirm event (section 5)
+
+    def footer(self, entry):
+        with open(self.path("CONTRACT.md"), encoding="utf-8") as f:
+            lines = f.read().split("### Installed entries")[1].split("## 4.")[0].split("\n")
+        block = [i for i, line in enumerate(lines) if line.startswith("      ")]
+        return "\n".join(line[6:] for line in lines[block[0]:block[-1] + 1]).replace("<id>", entry)
+
+    def mark(self, entry):
+        self.edit(self.skill(entry), "  approval:", '  skill: "yes"\n  approval:')
+        self.append(self.skill(entry), "\n" + self.footer(entry) + "\n")
+        self.log("edit", entry, "--why", "installed as a skill")
+
+    def skills(self):
+        return os.path.join(self.tmp, "home", ".claude", "skills")
+
+    def test_skill_mark_needs_the_closing_section(self):
+        self.edit(self.skill("vue-patterns"), "  approval:", '  skill: "yes"\n  approval:')
+        self.fails("must end with the `## Log the outcome` section")
+        self.append(self.skill("vue-patterns"), "\n" + self.footer("vue-patterns") + "\n")
+        self.log("edit", "vue-patterns", "--why", "installed as a skill")
+        self.clean()
+
+    def test_skill_mark_never_on_a_retired_entry(self):
+        self.mark("vue-patterns")
+        self.edit(self.skill("vue-patterns"), 'status: "candidate"', 'status: "retired"')
+        self.log("retire", "vue-patterns", "--why", "test")
+        self.fails("never on a retired entry")
+
+    def test_install_links_marked_entries_and_the_command_is_reached_both_ways(self):
+        self.mark("vue-patterns")
+        r = pb(self.root, "install", "--to", self.skills())
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        link = os.path.join(self.skills(), "vue-patterns")
+        self.assertTrue(os.path.islink(link))
+        self.assertTrue(os.path.isfile(os.path.join(link, "SKILL.md")))
+        followed = link + "/../../pb"                 # a shell goes through the link first, then up twice
+        by_hand = os.path.normpath(followed)          # an agent that works the path out first lands beside the skill folder
+        self.assertEqual(by_hand, os.path.join(self.tmp, "home", ".claude", "pb"))
+        env = {k: v for k, v in os.environ.items() if k != "PB_ROOT"}
+        env.update(PB_NO_TRACE="1", PB_ACTOR="path-test")
+        for path in (followed, by_hand):
+            r = subprocess.run([path, "log", "use", "vue-patterns", "--task", "t", "--outcome", "helped",
+                                "--changed", "c"], capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, 0, path + ": " + r.stderr)
+        with open(self.path("log", "events.jsonl"), encoding="utf-8") as f:
+            self.assertEqual(sum('"actor": "path-test"' in line for line in f), 2)   # both wrote to this library
+        os.unlink(by_hand)
+        self.assertFalse(os.path.exists(by_hand))     # without the command link the worked-out path leads nowhere
+        self.assertTrue(os.path.exists(followed))
+        self.clean()
+
+    def test_install_never_replaces_what_it_did_not_create(self):
+        self.mark("vue-patterns")
+        os.makedirs(os.path.join(self.skills(), "vue-patterns"))
+        r = pb(self.root, "install", "--to", self.skills())
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("REFUSED   vue-patterns", r.stdout)
+        self.assertFalse(os.path.islink(os.path.join(self.skills(), "vue-patterns")))
+
+    def test_install_unlinks_an_entry_that_is_no_longer_marked(self):
+        self.mark("vue-patterns")
+        pb(self.root, "install", "--to", self.skills())
+        self.edit(self.skill("vue-patterns"), '  skill: "yes"\n', "")
+        r = pb(self.root, "install", "--to", self.skills())
+        self.assertIn("unlinked  vue-patterns", r.stdout)
+        self.assertFalse(os.path.lexists(os.path.join(self.skills(), "vue-patterns")))
+
+    def test_confirm_records_the_owners_verdict(self):
+        import re
+        count = lambda: [int(n) for n in re.search(
+            r"Confirmed by the owner: (\d+)\. Confirmed as helped: (\d+)", pb(self.root, "stats").stdout).groups()]
+        before = count()
+        use = self.log("use", "vue-patterns", "--task", "a Vue form", "--outcome", "helped", "--changed", "c")
+        stats = pb(self.root, "stats").stdout
+        self.assertIn("Waiting for the owner's verdict", stats)
+        self.assertIn(use, stats)
+        self.log("confirm", "--use", use, "--outcome", "partly")      # the owner's verdict differs and counts
+        self.clean()
+        self.assertEqual(count(), [before[0] + 1, before[1]])
+        self.assertNotIn(use, pb(self.root, "stats").stdout)
+        r = pb(self.root, "log", "confirm", "--use", use, "--outcome", "helped")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("already has a `confirm` event", r.stderr)
+        r = pb(self.root, "log", "confirm", "--use", "nothing", "--outcome", "helped")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("eid of a `use` event", r.stderr)
+
+    def test_a_confirm_event_counts_for_promotion(self):
+        e = "python-testing"
+        uses = [self.log("use", e, "--task", "t", "--outcome", "helped", "--changed", "c") for _ in range(3)]
+        self.log("confirm", "--use", uses[0], "--outcome", "helped")
+        review = self.log("review", e, "--reviewer", "independent", "--verdict", "pass")
+        self.edit(self.skill(e), 'status: "candidate"', 'status: "trusted"')
+        self.log("promote", e, "--uses", " ".join(uses), "--review", review)
+        self.clean()
+
     def test_use_and_miss_reach_the_statistics(self):
         import re
         before = int(re.search(r"Uses: (\d+)\.", pb(self.root, "stats").stdout).group(1))

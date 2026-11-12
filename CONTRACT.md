@@ -1,6 +1,6 @@
 # Contract
 
-Version 2, 2026-10-13.
+Version 3, 2026-11-13.
 
 This file defines what a valid library is. `./pb check` enforces it and exits non-zero on any violation. The checker reads the tables in sections 3 to 7 directly, so a rule changed here changes what is enforced, and a field listed here that the checker has no validator for fails the check.
 
@@ -14,8 +14,9 @@ Changing this file needs the owner's approval, a `decide` event in the log with 
 | `sources/<source>.index.json` | snapshot of the pack at the pinned commit: path, name, description and blob hash of every skill in it | `./pb source add`; never edited |
 | `sources/licenses/<source>.txt` | the pack's licence text | `./pb source add` |
 | `.cache/<source>.git` | bare clone of the pack at the pinned commit; ignored by git | `./pb source fetch` |
-| `.cache/lookups.jsonl` | a record of every search and every opened entry on this machine; ignored by git | `./pb find` and `./pb show` |
+| `.cache/lookups.jsonl` | a record of every search and every entry opened through `pb` on this machine; ignored by git. An installed entry that the harness loads leaves no record here | `./pb find` and `./pb show` |
 | `playbooks/<id>/` | the curated layer | agents, under sections 3 to 6 |
+| `<skill folder>/<id>` | outside the repository, in the folder a harness reads skills from (`~/.claude/skills/` for Claude Code): a link to `playbooks/<id>/` for each entry marked as a skill. Next to that folder, `pb`: a link to the command | `./pb install`, on the owner's yes |
 | `log/events.jsonl` | every use, change and decision | `./pb log`; lines are only added |
 | `index.json`, `CATALOG.md`, `STATS.md`, `CHANGELOG.md` | generated views | `./pb build`; never edited by hand |
 | `README.md`, `CONTRACT.md`, `operations/*.md` | hand-written documentation | agents propose, the owner approves |
@@ -54,6 +55,7 @@ An entry is a directory `playbooks/<id>/` holding `SKILL.md` and, optionally, `r
 | `metadata.approval` | yes | `none`, or every approval class from section 6 that the steps contain. |
 | `metadata.depends` | no | Ids of entries this one builds on. Each must exist and not be retired. |
 | `metadata.superseded-by` | no | Only on a retired entry: the id that replaces it. |
+| `metadata.skill` | no | `yes` when the entry is installed as a skill, see "Installed entries" below. Never on a retired entry. |
 
 "Adapted" means `origin` is not `own`.
 
@@ -67,6 +69,23 @@ An entry is a directory `playbooks/<id>/` holding `SKILL.md` and, optionally, `r
 - At most 200 lines. Longer material goes into `references/`, one level deep.
 - Written for an agent that has not seen the session the entry came from. No names of people, no email addresses, no home-directory paths, no private project names.
 - A claim that depends on a version or a date states that version or date.
+
+### Installed entries
+
+An entry marked `skill: "yes"` is linked into the harness's skill folder. The harness then shows its `description` in every session and loads the body when the description matches the task. No search is involved, and `./pb show` is not there to print the status and the approval notice.
+
+- The body of an installed entry ends with the section below, word for word, with the entry's id filled in. The checker compares it.
+
+      ## Log the outcome
+
+      When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+          <folder of this file>/../../pb log use <id> --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+      The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.
+
+- `./pb install` links exactly the entries marked this way and removes its links to entries that are retired or no longer marked. It also links the command next to the skill folder, so that `../..` from an installed entry reaches `pb` both when the path is followed through the link and when it is worked out by hand. It never replaces a folder or link it did not create.
+- Marking an entry as a skill, and any change to an installed entry, needs the owner's yes in that session: the change is live in every session at once.
 
 ## 4. Status and lifecycle
 
@@ -103,9 +122,11 @@ Every event carries `eid`, `ts`, `event`, and `actor` (who wrote it: model and h
 | `ingest` | A source was added, or its pin moved. | `source`, `commit`, `why` |
 | `drop` | A source was dropped. | `source`, `why` |
 | `decide` | A decision about the library, with its reason. | `what`, `why` |
+| `confirm` | The owner gave the verdict on a logged use. | `use`, `outcome` |
 
 - `outcome` is `helped`, `partly` or `no`. `changed` says in one line what the entry made the agent do that it would not have done otherwise. If nothing can be named, the outcome is `no`.
-- A `use` event may carry `confirmed: true` when the owner gave the verdict. Without it, the outcome is the agent's own report.
+- A `use` event may carry `confirmed: true` when the owner gave the verdict as it was logged. A `confirm` event records the owner's verdict on an earlier `use` event: `use` is that event's `eid`, `outcome` is the owner's verdict in the owner's own words to the agent that writes it. A use has at most one `confirm`.
+- A use is confirmed when it carries `confirmed: true` or a `confirm` event names it. Where the owner's outcome differs from the agent's, the owner's counts. Without either, the outcome is the agent's own report.
 - `task` names the kind of work ("pytest fixtures for a FastAPI service"), never who it was for.
 - The log holds no email address, no home-directory path and no invisible characters. `./pb log` refuses to write an event that contains one, and the checker fails on one.
 - On a `use` event, `id` may name a source skill as `<source>:<path>` when an agent read unreviewed source text.
@@ -130,8 +151,9 @@ Entries are instructions that agents will follow, and agents also write them. Th
 
 5. An entry's `approval` field lists every class its steps contain. The checker scans for the patterns of each class and fails on one that is not declared.
 6. The checker also fails on characters that are invisible in an editor (zero-width characters, bidirectional controls, Unicode tag characters), HTML comments, embedded base64 blocks, email addresses and home-directory paths.
+7. An installed entry is read without `./pb show`, so its closing section repeats rules 3 and 4 (section 3, "Installed entries").
 
-What these rules do not give: the pattern scan can be evaded and is a tripwire. The review gate is a procedure recorded in a log that agents write, and nothing authenticates a `review` event. The protections that hold regardless are structural: entries are markdown only, nothing from a source runs, and every change is in git history.
+What these rules do not give: the pattern scan can be evaded and is a tripwire. The review gate is a procedure recorded in a log that agents write, and nothing authenticates a `review` or `confirm` event. The description of an installed entry sits in the context of every session, and nothing but the rule in section 3 stops an agent from changing it. The protections that hold regardless are structural: entries are markdown only, nothing from a source runs, and every change is in git history.
 
 ## 7. Operations
 
@@ -139,7 +161,7 @@ Each operation is a procedure agents follow, kept in `operations/`.
 
 | operation | file | in one line |
 |---|---|---|
-| use | `operations/use.md` | Find, open at most two entries, apply, log the outcome; say so when nothing fits. |
+| use | `operations/use.md` | Apply an installed entry when the harness offers it; otherwise find and open at most two entries. Log the outcome; say so when nothing fits. |
 | ingest | `operations/ingest.md` | Add a source to the manifest at a pinned commit, snapshot it, propose candidates. |
 | curate | `operations/curate.md` | Read the log; promote, retire, merge and re-verify; review upstream changes as a diff; report. |
 | check | `operations/check.md` | Run the checker and fix what it reports. |
