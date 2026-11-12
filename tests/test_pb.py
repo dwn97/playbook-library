@@ -406,6 +406,9 @@ class Checker(unittest.TestCase):
         linked = os.path.join(self.skills(), "vue-patterns", "SKILL.md")
         self.assertIn('"ask"', edit(linked, "Write"))
         self.assertEqual(edit(self.skill("react-patterns")), "")     # not installed: any agent may change it
+        self.assertIn('"ask"', edit(self.path("pb")))                # the command itself, and through its link
+        self.assertIn('"ask"', edit(os.path.join(self.skills(), "pb"), "Write"))
+        self.assertIn("contract", edit(self.path("CONTRACT.md")))
         self.assertEqual(edit(self.path("README.md")), "")
         self.assertEqual(edit(os.path.join(self.tmp, "elsewhere.txt")), "")
 

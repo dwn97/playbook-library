@@ -1,6 +1,6 @@
 # Contract
 
-Version 4, 2026-11-13.
+Version 5, 2026-11-13.
 
 This file defines what a valid library is. `./pb check` enforces it and exits non-zero on any violation. The checker reads the tables in sections 3 to 7 directly, so a rule changed here changes what is enforced, and a field listed here that the checker has no validator for fails the check.
 
@@ -88,7 +88,7 @@ An entry marked `skill: "yes"` is linked into the harness's skill folder. The ha
 - Marking an entry as a skill, and any change to an installed entry, needs the owner's yes in that session: the change is live in every session at once.
 - Where the harness can run hooks, the owner may set one that calls `./pb hook` whenever a skill is loaded. `./pb hook` reads the harness's event from standard input and, when it names an installed entry, adds one line to the local record of lookups: the entry, the time, the session, and where the session's transcript is. For a load it prints nothing and changes nothing the agent does. The line stays on the machine and never enters the log.
 - `./pb stats` sets these loads against the logged uses of the same entry and lists every load that no use followed.
-- The same hook may be set for the harness's file-editing tools. `./pb hook` then answers an edit of an installed entry's files with a request for the owner's permission, which the harness shows as a prompt. It is a tripwire for the rule above: a shell command that writes the file gets past it.
+- The same hook may be set for the harness's file-editing tools. `./pb hook` then answers an edit of an installed entry's files, of the command `pb` or of this contract with a request for the owner's permission, which the harness shows as a prompt. It is a tripwire for the rule above: a shell command that writes the file gets past it.
 
 ## 4. Status and lifecycle
 
@@ -101,7 +101,7 @@ An entry marked `skill: "yes"` is linked into the harness's skill folder. The ha
 - Every entry has exactly one `add` event, and every id with an `add` event has a directory. That is what makes ids permanent.
 - Allowed moves: `candidate` to `trusted`, `candidate` to `retired`, `trusted` to `retired`. A retired entry is never revived; its replacement gets a new id.
 - An entry is retired because it was used and did not help, because another entry replaces it, or because it is wrong or out of date. Lack of use alone is never a reason to retire an entry.
-- A candidate may be changed by any agent, with an `edit` event giving the reason.
+- A candidate that is not installed may be changed by any agent, with an `edit` event giving the reason. An installed entry is changed only with the owner's yes (section 3).
 - The content hash of an entry is the SHA-256 of the `SKILL.md` body followed by its reference files in name order. The current hash of a `trusted` entry must equal the hash in its latest `promote` or `review` event. An edit to a trusted entry therefore fails the check until a reviewer has read the new text.
 - A reviewer is the owner, or an independent reviewer that starts with fresh context and did not write the change.
 
@@ -157,7 +157,7 @@ Entries are instructions that agents will follow, and agents also write them. Th
 6. The checker also fails on characters that are invisible in an editor (zero-width characters, bidirectional controls, Unicode tag characters), HTML comments, embedded base64 blocks, email addresses and home-directory paths.
 7. An installed entry is read without `./pb show`, so its closing section repeats rules 3 and 4 (section 3, "Installed entries").
 
-What these rules do not give: the pattern scan can be evaded and is a tripwire. The review gate is a procedure recorded in a log that agents write, and nothing authenticates a `review` or `confirm` event. The description of an installed entry sits in the context of every session, and nothing but the rule in section 3 stops an agent from changing it. The protections that hold regardless are structural: entries are markdown only, nothing from a source runs, and every change is in git history.
+What these rules do not give: the pattern scan can be evaded and is a tripwire. The review gate is a procedure recorded in a log that agents write, and nothing authenticates a `review` or `confirm` event. The description of an installed entry sits in the context of every session, and nothing but the rule in section 3 stops an agent from changing it. Where the hooks are set up, `pb` runs on every skill load and every file edit in every session, with the owner's rights. A change to `pb` is a change to what runs there. The protections that hold regardless are structural: entries are markdown only, nothing from a source runs, and every change is in git history.
 
 ## 7. Operations
 

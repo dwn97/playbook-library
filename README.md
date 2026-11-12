@@ -56,7 +56,7 @@ The full procedure is in `operations/use.md`.
 
 To set it up for Claude Code, run `./pb install`: it links the entries marked `skill: "yes"` into `~/.claude/skills/`, and links the command `pb` next to that folder and inside it, so that the relative path at the end of an installed entry reaches it. `./pb install --to <folder>` uses another skill folder. It never replaces anything it did not create. Then copy the folder `router/playbooks/` into `~/.claude/skills/` for the search fallback, and add the hooks below. The router assumes the library is at `~/Projects/playbook-library/`; change the paths in it if yours is elsewhere. For any other harness, point the agent at this file.
 
-Hooks, in the `hooks` object of `~/.claude/settings.json` (Claude Code hooks reference, read 2026-11-13). The first two record every load of an installed entry, whether Claude calls the skill or the user types its name, so that `./pb stats` can list loads that no logged use followed. The third makes the harness ask before an agent edits an installed entry. All three call the link that `./pb install` made:
+Hooks, in the `hooks` object of `~/.claude/settings.json` (Claude Code hooks reference, read 2026-11-13). The first two record every load of an installed entry, whether Claude calls the skill or the user types its name, so that `./pb stats` can list loads that no logged use followed. The third makes the harness ask before an agent edits an installed entry, the command `pb` or the contract. All three call the link that `./pb install` made:
 
     "PreToolUse": [
       { "matcher": "Skill",
@@ -76,7 +76,7 @@ Hooks, in the `hooks` object of `~/.claude/settings.json` (Claude Code hooks ref
 | `./pb show <id>` | Prints an entry with its status, verified date and approval classes. `<source>:<path>` prints unreviewed source text, marked as such. |
 | `./pb log <event> ...` | Appends an event to the log. The event types and their fields are in section 5 of the contract. |
 | `./pb stats` | Uses and outcomes per entry, misses, the numbers each version is judged by, and the uses that wait for the owner's verdict. On the machine it runs on it also lists what was searched and opened, so a lookup that never got a logged outcome is visible. |
-| `./pb hook` | For a harness hook: reads the hook's event from standard input, records each load of an installed entry in the local record, and answers an edit of an installed entry with a request for the owner's permission. |
+| `./pb hook` | For a harness hook: reads the hook's event from standard input, records each load of an installed entry in the local record, and answers an edit of an installed entry, of `pb` or of the contract with a request for the owner's permission. |
 | `./pb install` | Links the entries marked as skills, and the command, into a harness's skill folder; removes its links to entries that are retired or no longer marked. Needs the owner's yes. `--to <folder>` names the folder. |
 | `./pb build` | Regenerates the index, the catalogue, the statistics and the changelog. |
 | `./pb check` | Checks the whole library against the contract. Exit code 0 when clean. `--stale` also lists entries not verified for 180 days. |
@@ -147,7 +147,7 @@ The owner confirms in batches. Halfway, on 2026-12-04, and again at judging, the
 
     ./pb log confirm --use <eid> --outcome helped
 
-Added the same day, after the start, as contract version 4: a hook that records each load of an installed entry, so that a use nobody logged is visible and can be logged afterwards, and that makes the harness ask before an agent edits an installed entry. It measures and guards. It was kept apart from the three changes because it does not change what an agent does with an entry; a reminder to log, which would, was ruled out for the length of the test.
+Added the same day, after the start, as contract version 4: a hook that records each load of an installed entry, so that a use nobody logged is visible and can be logged afterwards, and that makes the harness ask before an agent edits an installed entry, the command or the contract (the last two since contract version 5). It measures and guards. It was kept apart from the three changes because it does not change what an agent does with an entry; a reminder to log, which would, was ruled out for the length of the test.
 
 ## About this repository
 

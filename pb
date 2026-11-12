@@ -1165,14 +1165,20 @@ def cmd_hook(a):
         return
     if name == "PreToolUse" and tool in ("Edit", "Write", "NotebookEdit") and isinstance(arg.get("file_path"), str):
         path = os.path.realpath(os.path.expanduser(arg["file_path"]))
-        if not path.startswith(base + os.sep):
-            return
-        eid = os.path.relpath(path, base).split(os.sep)[0]
-        if eid in installed():
-            print(json.dumps({"hookSpecificOutput": {
-                "hookEventName": "PreToolUse", "permissionDecision": "ask",
-                "permissionDecisionReason": f"`{eid}` is a playbook entry installed as a skill. A change to it is live "
-                                            "in every session at once, so the library's contract asks for the owner's yes."}}))
+        reason = None
+        if path == os.path.realpath(P("pb")):
+            reason = ("`pb` is the playbook library's command. Where its hooks are set up it runs on every skill load "
+                      "and file edit in every session, so the library's contract asks for the owner's yes.")
+        elif path == os.path.realpath(P("CONTRACT.md")):
+            reason = "A change to the playbook library's contract needs the owner's approval and a new version number."
+        elif path.startswith(base + os.sep):
+            eid = os.path.relpath(path, base).split(os.sep)[0]
+            if eid in installed():
+                reason = (f"`{eid}` is a playbook entry installed as a skill. A change to it is live in every session "
+                          "at once, so the library's contract asks for the owner's yes.")
+        if reason:
+            print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "ask",
+                                                     "permissionDecisionReason": reason}}))
 
 
 def loose_frontmatter(text):
