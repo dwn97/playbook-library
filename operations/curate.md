@@ -5,7 +5,9 @@ The maintenance pass. Run it on request, or on a schedule once the owner sets on
 ## 1. Mechanical
 
 1. `./pb check --stale`. Fix every violation before anything else, following `operations/check.md`.
-2. `./pb stats`. Read the table, the list of entries never used, and the searches where nothing fit. On the machine where the work happens it also shows the local record of lookups: searches that returned nothing without a logged miss, and entries opened more often than outcomes were logged. Ask the owner about those.
+2. `./pb stats`. Read the table, the list of entries never used, and the searches where nothing fit. On the machine where the work happens it also shows the local record of lookups: searches that returned nothing without a logged miss, and entries opened more often than outcomes were logged. Ask the owner about those. Where the hook of section 3 of the contract is set up, it lists installed entries that were loaded with no use logged afterwards, each with its session's transcript. With the owner's yes, read that transcript and log the use after the fact, with a note that says so and nothing from the transcript beyond the kind of task and what the entry changed. Do it before the harness deletes the transcript.
+
+       ./pb log use <id> --task "<kind of task>" --outcome partly --changed "<what the entry changed>" --note "logged afterwards from the session record"
 
 ## 2. Entries
 

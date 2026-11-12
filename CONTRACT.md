@@ -1,6 +1,6 @@
 # Contract
 
-Version 3, 2026-11-13.
+Version 4, 2026-11-13.
 
 This file defines what a valid library is. `./pb check` enforces it and exits non-zero on any violation. The checker reads the tables in sections 3 to 7 directly, so a rule changed here changes what is enforced, and a field listed here that the checker has no validator for fails the check.
 
@@ -14,7 +14,7 @@ Changing this file needs the owner's approval, a `decide` event in the log with 
 | `sources/<source>.index.json` | snapshot of the pack at the pinned commit: path, name, description and blob hash of every skill in it | `./pb source add`; never edited |
 | `sources/licenses/<source>.txt` | the pack's licence text | `./pb source add` |
 | `.cache/<source>.git` | bare clone of the pack at the pinned commit; ignored by git | `./pb source fetch` |
-| `.cache/lookups.jsonl` | a record of every search and every entry opened through `pb` on this machine; ignored by git. An installed entry that the harness loads leaves no record here | `./pb find` and `./pb show` |
+| `.cache/lookups.jsonl` | a record of every search and every entry opened through `pb` on this machine and, where the hook of section 3 is set up, of every installed entry the harness loaded; ignored by git | `./pb find`, `./pb show` and `./pb hook` |
 | `playbooks/<id>/` | the curated layer | agents, under sections 3 to 6 |
 | `<skill folder>/<id>` | outside the repository, in the folder a harness reads skills from (`~/.claude/skills/` for Claude Code): a link to `playbooks/<id>/` for each entry marked as a skill. Next to that folder and inside it, `pb`: a link to the command | `./pb install`, on the owner's yes |
 | `log/events.jsonl` | every use, change and decision | `./pb log`; lines are only added |
@@ -86,6 +86,9 @@ An entry marked `skill: "yes"` is linked into the harness's skill folder. The ha
 
 - `./pb install` links exactly the entries marked this way and removes its links to entries that are retired or no longer marked. It also links the command next to the skill folder and inside it, so that an installed entry reaches `pb` when `../..` is followed through the link, when it is worked out by hand, and when the two folders are counted from the file. It never replaces a folder or link it did not create.
 - Marking an entry as a skill, and any change to an installed entry, needs the owner's yes in that session: the change is live in every session at once.
+- Where the harness can run hooks, the owner may set one that calls `./pb hook` whenever a skill is loaded. `./pb hook` reads the harness's event from standard input and, when it names an installed entry, adds one line to the local record of lookups: the entry, the time, the session, and where the session's transcript is. For a load it prints nothing and changes nothing the agent does. The line stays on the machine and never enters the log.
+- `./pb stats` sets these loads against the logged uses of the same entry and lists every load that no use followed.
+- The same hook may be set for the harness's file-editing tools. `./pb hook` then answers an edit of an installed entry's files with a request for the owner's permission, which the harness shows as a prompt. It is a tripwire for the rule above: a shell command that writes the file gets past it.
 
 ## 4. Status and lifecycle
 
@@ -127,6 +130,7 @@ Every event carries `eid`, `ts`, `event`, and `actor` (who wrote it: model and h
 - `outcome` is `helped`, `partly` or `no`. `changed` says in one line what the entry made the agent do that it would not have done otherwise. If nothing can be named, the outcome is `no`.
 - A `use` event may carry `confirmed: true` when the owner gave the verdict as it was logged. A `confirm` event records the owner's verdict on an earlier `use` event: `use` is that event's `eid`, `outcome` is the owner's verdict in the owner's own words to the agent that writes it. A use has at most one `confirm`.
 - A use is confirmed when it carries `confirmed: true` or a `confirm` event names it. Where the owner's outcome differs from the agent's, the owner's counts. Without either, the outcome is the agent's own report.
+- A `use` event may be written after the fact for a load that no use followed, by an agent that reads the local record and that session's transcript. It then carries a `note` that says so, and takes nothing from the transcript beyond the kind of task and what the entry changed.
 - `task` names the kind of work ("pytest fixtures for a FastAPI service"), never who it was for.
 - The log holds no email address, no home-directory path and no invisible characters. `./pb log` refuses to write an event that contains one, and the checker fails on one.
 - On a `use` event, `id` may name a source skill as `<source>:<path>` when an agent read unreviewed source text.

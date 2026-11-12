@@ -16,14 +16,14 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def pb(root, *args, trace=False):
+def pb(root, *args, trace=False, stdin=None):
     env = dict(os.environ, PB_ROOT=root, PB_ACTOR="test")
     if trace:
         env.pop("PB_NO_TRACE", None)
     else:
         env["PB_NO_TRACE"] = "1"      # tests must not write to the real record of lookups
     return subprocess.run([sys.executable, os.path.join(ROOT, "pb"), *args],
-                          capture_output=True, text=True, env=env)
+                          capture_output=True, text=True, env=env, input=stdin)
 
 
 class Library(unittest.TestCase):
@@ -351,6 +351,63 @@ class Checker(unittest.TestCase):
         self.edit(self.skill(e), 'status: "candidate"', 'status: "trusted"')
         self.log("promote", e, "--uses", " ".join(uses), "--review", review)
         self.clean()
+
+    # ---- the hook (section 3): loads of installed entries, and edits of them
+
+    def hook(self, event):
+        import json
+        r = pb(self.root, "hook", trace=True, stdin=json.dumps(event) if isinstance(event, dict) else event)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout
+
+    def record(self):
+        path = self.path(".cache", "lookups.jsonl")
+        if not os.path.exists(path):
+            return ""
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+
+    def test_hook_records_a_load_and_stats_shows_it_until_a_use_follows(self):
+        self.mark("vue-patterns")
+        load = {"hook_event_name": "PreToolUse", "tool_name": "Skill", "tool_input": {"skill": "vue-patterns"},
+                "session_id": "abcdef1234", "transcript_path": "/somewhere/abcdef1234.jsonl"}
+        self.assertEqual(self.hook(load), "")                # a load prints nothing
+        self.assertEqual(self.hook(load), "")                # a second load in the same session counts once
+        self.assertIn('"cmd": "load"', self.record())
+        stats = pb(self.root, "stats").stdout
+        self.assertIn("Installed entries loaded by the harness: 1", stats)
+        self.assertIn("No use logged afterwards: 1.", stats)
+        self.assertIn("`vue-patterns`, session abcdef12, transcript: /somewhere/abcdef1234.jsonl", stats)
+        self.log("use", "vue-patterns", "--task", "a Vue form", "--outcome", "helped", "--changed", "c")
+        self.assertIn("No use logged afterwards: 0.", pb(self.root, "stats").stdout)
+        self.clean()                                         # the record is local; the check never reads it
+
+    def test_hook_records_a_typed_command_and_ignores_everything_else(self):
+        self.mark("vue-patterns")
+        self.hook({"hook_event_name": "UserPromptExpansion", "command_name": "vue-patterns", "session_id": "s1"})
+        self.assertIn('"via": "typed"', self.record())
+        before = self.record()
+        self.hook({"hook_event_name": "PreToolUse", "tool_name": "Skill", "tool_input": {"skill": "react-patterns"}})
+        self.hook({"hook_event_name": "UserPromptExpansion", "command_name": "some-other-command"})
+        self.hook({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": "ls"}})
+        self.assertEqual(self.hook("not json"), "")
+        self.assertEqual(self.hook("[1, 2]"), "")
+        self.assertEqual(self.record(), before)              # none of these is a load of an installed entry
+
+    def test_hook_asks_before_an_edit_of_an_installed_entry(self):
+        import json
+        self.mark("vue-patterns")
+        edit = lambda path, tool="Edit": self.hook({"hook_event_name": "PreToolUse", "tool_name": tool,
+                                                    "tool_input": {"file_path": path}})
+        out = json.loads(edit(self.skill("vue-patterns")))["hookSpecificOutput"]
+        self.assertEqual((out["hookEventName"], out["permissionDecision"]), ("PreToolUse", "ask"))
+        self.assertIn("vue-patterns", out["permissionDecisionReason"])
+        pb(self.root, "install", "--to", self.skills())      # through the link in the skill folder as well
+        linked = os.path.join(self.skills(), "vue-patterns", "SKILL.md")
+        self.assertIn('"ask"', edit(linked, "Write"))
+        self.assertEqual(edit(self.skill("react-patterns")), "")     # not installed: any agent may change it
+        self.assertEqual(edit(self.path("README.md")), "")
+        self.assertEqual(edit(os.path.join(self.tmp, "elsewhere.txt")), "")
 
     def test_use_and_miss_reach_the_statistics(self):
         import re

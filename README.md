@@ -54,7 +54,19 @@ The full procedure is in `operations/use.md`.
     tests/                     tests for the command and the checker
     .cache/                    bare clones of the sources and the local record of lookups; not in git
 
-To set it up for Claude Code, run `./pb install`: it links the entries marked `skill: "yes"` into `~/.claude/skills/`, and links the command `pb` next to that folder and inside it, so that the relative path at the end of an installed entry reaches it. `./pb install --to <folder>` uses another skill folder. It never replaces anything it did not create. Then copy the folder `router/playbooks/` into `~/.claude/skills/` for the search fallback. The router assumes the library is at `~/Projects/playbook-library/`; change the paths in it if yours is elsewhere. For any other harness, point the agent at this file.
+To set it up for Claude Code, run `./pb install`: it links the entries marked `skill: "yes"` into `~/.claude/skills/`, and links the command `pb` next to that folder and inside it, so that the relative path at the end of an installed entry reaches it. `./pb install --to <folder>` uses another skill folder. It never replaces anything it did not create. Then copy the folder `router/playbooks/` into `~/.claude/skills/` for the search fallback, and add the hooks below. The router assumes the library is at `~/Projects/playbook-library/`; change the paths in it if yours is elsewhere. For any other harness, point the agent at this file.
+
+Hooks, in the `hooks` object of `~/.claude/settings.json` (Claude Code hooks reference, read 2026-11-13). The first two record every load of an installed entry, whether Claude calls the skill or the user types its name, so that `./pb stats` can list loads that no logged use followed. The third makes the harness ask before an agent edits an installed entry. All three call the link that `./pb install` made:
+
+    "PreToolUse": [
+      { "matcher": "Skill",
+        "hooks": [ { "type": "command", "command": "\"$HOME/.claude/pb\" hook", "timeout": 5 } ] },
+      { "matcher": "Edit|Write",
+        "hooks": [ { "type": "command", "command": "\"$HOME/.claude/pb\" hook", "timeout": 5 } ] }
+    ],
+    "UserPromptExpansion": [
+      { "hooks": [ { "type": "command", "command": "\"$HOME/.claude/pb\" hook", "timeout": 5 } ] }
+    ]
 
 ## Commands
 
@@ -64,6 +76,7 @@ To set it up for Claude Code, run `./pb install`: it links the entries marked `s
 | `./pb show <id>` | Prints an entry with its status, verified date and approval classes. `<source>:<path>` prints unreviewed source text, marked as such. |
 | `./pb log <event> ...` | Appends an event to the log. The event types and their fields are in section 5 of the contract. |
 | `./pb stats` | Uses and outcomes per entry, misses, the numbers each version is judged by, and the uses that wait for the owner's verdict. On the machine it runs on it also lists what was searched and opened, so a lookup that never got a logged outcome is visible. |
+| `./pb hook` | For a harness hook: reads the hook's event from standard input, records each load of an installed entry in the local record, and answers an edit of an installed entry with a request for the owner's permission. |
 | `./pb install` | Links the entries marked as skills, and the command, into a harness's skill folder; removes its links to entries that are retired or no longer marked. Needs the owner's yes. `--to <folder>` names the folder. |
 | `./pb build` | Regenerates the index, the catalogue, the statistics and the changelog. |
 | `./pb check` | Checks the whole library against the contract. Exit code 0 when clean. `--stale` also lists entries not verified for 180 days. |
@@ -146,7 +159,7 @@ The owner confirms in batches. Halfway, on 2026-12-04, and again at judging, the
 
 - It is consulted only when an agent thinks to look. It does not help an agent that fails to read what it was given.
 - Outcomes are the agent's own report unless the owner confirms them, and an agent tends to rate its own work well. The `changed` field exists so a later reader can judge the claim.
-- A lookup that is never followed by a logged outcome shows only in the local record, on the machine where it happened. An installed entry that the harness loads leaves no record at all, so a use that was never logged is invisible.
+- A lookup that is never followed by a logged outcome shows only in the local record, on the machine where it happened. An installed entry that the harness loads is recorded only where the hooks above are set up; there, `./pb stats` lists each load that no logged use followed, and the use can be logged afterwards from that session's transcript while the harness still keeps it (Claude Code deletes transcripts after 30 days by default).
 - Search, now the fallback, is plain keyword ranking, kept small so it can be replaced. A task described in words the entry does not use is not found.
 - The snapshot of a source keeps names and descriptions. The full text of skills that were not curated exists only in `.cache/` and is lost if the cache is deleted after the upstream has gone.
 - The trust rules limit damage and make changes traceable. They do not prove an entry is safe. Section 6 of the contract says what holds and what does not.

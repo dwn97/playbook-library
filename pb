@@ -842,7 +842,8 @@ def log_flags(c):
 
 def check_docs(c, err):
     flags = {"find": {"--sources", "--all"}, "show": set(), "log": log_flags(c), "stats": set(),
-             "build": set(), "check": {"--stale"}, "source": {"--license", "--skills"}, "install": {"--to"}}
+             "build": set(), "check": {"--stale"}, "source": {"--license", "--skills"}, "install": {"--to"},
+             "hook": set()}
     docs = ["README.md", "CONTRACT.md"] + sorted(c["operations"].values())
     if os.path.exists(P("router", "playbooks", "SKILL.md")):
         docs.append(os.path.join("router", "playbooks", "SKILL.md"))
@@ -1050,6 +1051,29 @@ def local_lookups(evs):
         out += ["| entry | opened | outcomes logged |", "|---|---|---|"]
         out += [f"| `{k}` | {n} | {used.get(k, 0)} |" for k, n in sorted(opened.items())]
         out.append("")
+    # installed entries the harness loaded (recorded by ./pb hook): one per session and entry, earliest first
+    loads = {}
+    for r in rows:
+        if r.get("cmd") == "load" and r.get("id") and r.get("ts"):
+            loads.setdefault((r.get("session", ""), r["id"]), r)
+    if loads:
+        later = {}
+        for ev in evs:
+            if ev["event"] == "use":
+                later.setdefault(ev.get("id"), []).append(ev.get("ts", ""))
+        open_loads = []
+        for r in sorted(loads.values(), key=lambda r: r["ts"]):
+            match = next((t for t in sorted(later.get(r["id"], [])) if t >= r["ts"]), None)
+            if match is None:
+                open_loads.append(r)
+            else:
+                later[r["id"]].remove(match)       # one use answers one load
+        out += [f"- Installed entries loaded by the harness: {len(loads)} (one per session and entry). "
+                f"No use logged afterwards: {len(open_loads)}.", ""]
+        out += [f"  - {r['ts'][:10]} `{r['id']}`, session {str(r.get('session', ''))[:8]}"
+                + (f", transcript: {r['transcript']}" if r.get("transcript") else "") for r in open_loads]
+        if open_loads:
+            out.append("")
     return "\n".join(out)
 
 
@@ -1108,6 +1132,45 @@ def cmd_install(a):
     link(os.path.realpath(P("pb")), os.path.join(target, "pb"), "pb, inside the skill folder")
     if refused:
         sys.exit(1)
+
+
+def cmd_hook(a):
+    """Called by a harness hook with its event as JSON on standard input (CONTRACT.md section 3).
+    Records a load of an installed entry; asks the owner before an edit of an installed entry's files.
+    It never fails the hook: anything it does not understand is left alone."""
+    try:
+        ev = json.load(sys.stdin)
+        assert isinstance(ev, dict)
+    except (ValueError, AssertionError):
+        return
+    name, tool = ev.get("hook_event_name"), ev.get("tool_name")
+    arg = ev.get("tool_input") if isinstance(ev.get("tool_input"), dict) else {}
+    base = os.path.realpath(P("playbooks"))
+
+    def installed():
+        return {i for i, e in entries().items()
+                if not e["error"] and meta(e, "skill") == "yes" and meta(e, "status") != "retired"}
+
+    loaded = None
+    if name == "PreToolUse" and tool == "Skill":
+        loaded = (str(arg.get("skill", "")), "tool")
+    elif name == "UserPromptExpansion":
+        loaded = (str(ev.get("command_name", "")).lstrip("/"), "typed")
+    if loaded:
+        if loaded[0] in installed():
+            trace("load", id=loaded[0], via=loaded[1], session=str(ev.get("session_id", ""))[:64],
+                  agent=str(ev.get("agent_type") or "")[:64], transcript=str(ev.get("transcript_path", ""))[:500])
+        return
+    if name == "PreToolUse" and tool in ("Edit", "Write", "NotebookEdit") and isinstance(arg.get("file_path"), str):
+        path = os.path.realpath(os.path.expanduser(arg["file_path"]))
+        if not path.startswith(base + os.sep):
+            return
+        eid = os.path.relpath(path, base).split(os.sep)[0]
+        if eid in installed():
+            print(json.dumps({"hookSpecificOutput": {
+                "hookEventName": "PreToolUse", "permissionDecision": "ask",
+                "permissionDecisionReason": f"`{eid}` is a playbook entry installed as a skill. A change to it is live "
+                                            "in every session at once, so the library's contract asks for the owner's yes."}}))
 
 
 def loose_frontmatter(text):
@@ -1240,6 +1303,8 @@ def main():
     p = sub.add_parser("install", help="link the entries marked as skills into a harness's skill folder")
     p.add_argument("--to", default=SKILL_FOLDER, help=f"the skill folder; default {SKILL_FOLDER}")
     p.set_defaults(fn=cmd_install)
+    p = sub.add_parser("hook", help="for a harness hook: reads its event from standard input")
+    p.set_defaults(fn=cmd_hook)
     p = sub.add_parser("source", help="add <id> <url> <commit> | fetch [<id>]")
     p.add_argument("action", choices=("add", "fetch"))
     p.add_argument("id", nargs="?")
