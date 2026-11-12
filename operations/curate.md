@@ -14,12 +14,16 @@ The maintenance pass. Run it on request, or on a schedule once the owner sets on
        ./pb log review <id> --reviewer owner --verdict pass
        ./pb log promote <id> --uses "<eid> <eid> <eid>" --review <eid>
 
-   If the uses are there and none is confirmed by the owner, ask the owner about one of them. Do not mark a use confirmed yourself.
+   If the uses are there and none is confirmed by the owner, ask the owner about one of them. Do not mark a use confirmed yourself. When the owner gives a verdict on a use that is already logged, record it; the owner's outcome may differ from the agent's and is the one that counts.
+
+       ./pb log confirm --use <eid> --outcome partly
 4. **Retire.** Propose retirement for an entry that was used at least three times and helped in fewer than one third, that another entry replaces, or that is wrong. Set `status` to `retired`, add `superseded-by` when there is a replacement, and record it.
 
        ./pb log retire <id> --why "<reason, citing the use events>"
 
    Lack of use alone retires nothing. An entry for a kind of task that has not come up yet stays.
+
+   After a retirement, or a change to which entries are marked as skills, run `./pb install` on the owner's yes so that the links match. Marking an entry as a skill and changing an installed entry both need the owner's yes: the change is live in every session at once.
 5. **Merge.** Two entries that answer the same task become one: keep or write the better one, retire the other with `superseded-by`.
 6. **Re-verify.** For each stale entry, run its steps or compare them with current tool versions and current upstream. Update `verified`, and `updated` if the text changed.
 

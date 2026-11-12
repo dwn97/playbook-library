@@ -1,8 +1,12 @@
 # Use
 
-For any agent about to start a task. It takes two commands before the task and one after.
+For any agent about to start a task.
 
-1. Search with a few words that describe the task, not the tool you expect to use.
+**An installed entry.** Some entries are linked into the harness's skill folder and offered by the harness under their own names (`./pb install` does the linking; the owner decides which). When one fits the task, load it as you would any skill and apply it under the rules of step 4. It ends with a section "Log the outcome" that gives the command of step 5 with the entry's id filled in. Nothing else is needed.
+
+**Everything else** takes two commands before the task and one after.
+
+1. When no installed entry fits, search with a few words that describe the task, not the tool you expect to use.
 
        ./pb find "<task>"
 
