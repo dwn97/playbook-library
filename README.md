@@ -8,7 +8,7 @@ Version 1 ran from 2026-10-13 to 2026-11-13 and did not meet the rule it was to 
 
 The rules are in [CONTRACT.md](CONTRACT.md). The entries are listed by topic in `CATALOG.md`.
 
-An AI agent built the first version in one session, and agents maintain it. Every entry is a `candidate`, which means unproven; none has been promoted. "About this repository" below has the details.
+An AI agent built the first version in one session, and agents maintain it. Twelve entries are `candidate`, which means unproven, and one is retired; none has been promoted. "About this repository" below has the details.
 
 Needs Python 3.9 or later and git. No packages.
 
@@ -89,7 +89,7 @@ Hooks, in the `hooks` object of `~/.claude/settings.json` (Claude Code hooks ref
 2. `./pb log add <id> --why "<what need this answers>"`
 3. `./pb build`, then `./pb check`.
 
-A `candidate` can be changed by any agent: edit, then `./pb log edit <id> --why "<reason>"`. A `trusted` entry fails the check after any edit until the owner or an independent reviewer has read the new text and a `review` event records it. Entries are retired, never deleted.
+A `candidate` that is not installed can be changed by any agent: edit, then `./pb log edit <id> --why "<reason>"`. A change to an installed entry needs the owner's yes first, because it is live in every session at once. A `trusted` entry fails the check after any edit until the owner or an independent reviewer has read the new text and a `review` event records it. Entries are retired, never deleted.
 
 ## Adding a source
 
@@ -137,7 +137,7 @@ Version 2 started on 2026-11-13 (`decide` event `20261112T165155Z-fe16d0`). The 
 
 Three changes and nothing else:
 
-1. Retrieval. The entries that were used in version 1, and `search-that-proves-it-ran`, are installed as skills, so the harness offers them by their descriptions and no search is needed. `./pb find` stays as the fallback for everything else.
+1. Retrieval. Seven entries are installed as skills, so the harness offers them by their descriptions and no search is needed: six of the eight entries used in version 1, and `search-that-proves-it-ran`, which was never used although the log holds one task where it fitted and was not consulted and one where the search did not find it. The two used entries left out are `verify-agent-output`, retired below, and `review-web-animations`, because the pack skill it was adapted from is already installed on the owner's machine. `./pb find` stays as the fallback for everything else.
 2. Content. `verify-agent-output` is retired under the existing rule: three uses, none helped. No entry is retired for lack of use. No new entry is written for now, so that misses can build up.
 3. `drive-web-app-in-headless-chrome` is rewritten from the notes on its nine uses.
 
@@ -147,17 +147,20 @@ The owner confirms in batches. Halfway, on 2026-12-04, and again at judging, the
 
     ./pb log confirm --use <eid> --outcome helped
 
+Added the same day, after the start, as contract version 4: a hook that records each load of an installed entry, so that a use nobody logged is visible and can be logged afterwards, and that makes the harness ask before an agent edits an installed entry. It measures and guards. It was kept apart from the three changes because it does not change what an agent does with an entry; a reminder to log, which would, was ruled out for the length of the test.
+
 ## About this repository
 
 - **Who built it.** An AI coding agent (Claude, run in Claude Code) wrote the first version in a single session on 2026-10-13, at the owner's direction and after the owner had read and approved the contract and this file. Agents maintain it under the rules in `CONTRACT.md`. The owner approves changes to the contract and gives the verdict on promotions.
 - **What state it is in.** Version 1 was frozen on 2026-11-13; version 2 runs since then. Thirteen entries: twelve `candidate`, one retired. Seven of the twelve are installed as skills. `STATS.md` shows how often each was used and whether it helped. `log/events.jsonl` holds every use, change and decision, mistakes included. Nothing here has been measured to improve an agent's results, and by its own rule version 1 did not pass; "How this library is judged" has the numbers.
-- **Where the entries come from.** Four are adapted from [ECC](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT), cut down and corrected; their frontmatter names the exact upstream file and commit. Two more, added on 2026-10-25, are adapted the same way from [emil-skills](https://github.com/emilkowalski/skills) (MIT) and [impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0). Seven are written from the owner's own work. `sources/ecc.index.json` lists the names and descriptions of ECC's 311 skills so that they can be searched. That text is ECC's, it has not been reviewed, and it stays under ECC's licence in `sources/licenses/ecc.txt`.
+- **Where the entries come from.** Four are adapted from [ECC](https://github.com/affaan-m/ECC) by Affaan Mustafa (MIT), cut down and corrected; their frontmatter names the exact upstream file and commit. Two more, added on 2026-10-25, are adapted the same way from [emil-skills](https://github.com/emilkowalski/skills) (MIT) and [impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0). Seven are written from the owner's own work. `sources/ecc.index.json` lists the names and descriptions of ECC's 311 skills so that they can be searched. That text is ECC's, it has not been reviewed, and it stays under ECC's licence in `sources/licenses/ecc.txt`. The other three sources are held the same way.
 - **Changes from outside.** Issues are welcome. Entries are instructions that agents follow, so a change to an entry from outside is not merged without the review the contract requires for any entry.
 - **Licence.** MIT, see `LICENSE`. The parts adapted from ECC, emil-skills and impeccable, and the snapshots of all four sources, remain under their own licences (MIT, and Apache-2.0 for impeccable); `NOTICE` lists them.
 
 ## Limits
 
-- It is consulted only when an agent thinks to look. It does not help an agent that fails to read what it was given.
+- An installed entry is used only when the agent judges that its description fits, and the rest only when an agent thinks to search. Neither helps an agent that fails to read what it was given.
+- Under version 2 a miss is logged only when an agent searches. An agent that finds no fitting skill and does not search leaves no miss, so the count of misses is a floor.
 - Outcomes are the agent's own report unless the owner confirms them, and an agent tends to rate its own work well. The `changed` field exists so a later reader can judge the claim.
 - A lookup that is never followed by a logged outcome shows only in the local record, on the machine where it happened. An installed entry that the harness loads is recorded only where the hooks above are set up; there, `./pb stats` lists each load that no logged use followed, and the use can be logged afterwards from that session's transcript while the harness still keeps it (Claude Code deletes transcripts after 30 days by default).
 - Search, now the fallback, is plain keyword ranking, kept small so it can be replaced. A task described in words the entry does not use is not found.
