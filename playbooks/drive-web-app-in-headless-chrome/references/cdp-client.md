@@ -1,6 +1,6 @@
 # A minimal DevTools client in TypeScript
 
-Runs on Node 22 or later with no packages (Node 24 runs `.ts` files directly; on older versions, rename to `.mjs` and drop the type annotations). Checked on Node 24.11 with Chrome on macOS, 2026-10-24.
+Runs on Node 22 or later with no packages (Node 24 runs `.ts` files directly; on older versions, rename to `.mjs` and drop the type annotations). Run on Node 24.11 with Chrome 157 on macOS, 2026-11-13: every method below was used against a test page, including the two widths, both colour schemes, a drag on an SVG handle and a real form post.
 
 ```ts
 import { spawn, type ChildProcess } from "node:child_process";
@@ -109,9 +109,27 @@ export class Browser {
     await this.send("Input.insertText", { text });
   }
 
-  async screenshot(file: string, width = 1280) {
-    const { cssContentSize } = await this.send("Page.getLayoutMetrics");
-    const clip = { x: 0, y: 0, width, height: Math.ceil(cssContentSize.height), scale: 1 };
+  /** Viewport of a given CSS width. mobile=true also applies the page's viewport meta, as a phone does. */
+  async viewport(width: number, height = 900, mobile = false) {
+    await this.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile });
+  }
+
+  async scheme(value: "light" | "dark") {
+    await this.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value }] });
+  }
+
+  /** Real mouse events at page coordinates: press at (x1,y1), move in steps, release at (x2,y2). */
+  async drag(x1: number, y1: number, x2: number, y2: number, steps = 5) {
+    await this.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x1, y: y1 });
+    await this.send("Input.dispatchMouseEvent", { type: "mousePressed", x: x1, y: y1, button: "left", clickCount: 1 });
+    for (let i = 1; i <= steps; i++)
+      await this.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: x1 + ((x2 - x1) * i) / steps, y: y1 + ((y2 - y1) * i) / steps, button: "left", buttons: 1 });
+    await this.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: x2, y: y2, button: "left", clickCount: 1 });
+  }
+
+  async screenshot(file: string) {
+    const { cssContentSize, cssLayoutViewport } = await this.send("Page.getLayoutMetrics");
+    const clip = { x: 0, y: 0, width: cssLayoutViewport.clientWidth, height: Math.ceil(cssContentSize.height), scale: 1 };
     const { data } = await this.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip });
     writeFileSync(file, Buffer.from(data, "base64"));
   }
@@ -127,11 +145,17 @@ try {
   await browser.waitForText("Welcome");
   await browser.click("Start");
   await browser.type('input[name="title"]', "smoke test");
-  await browser.screenshot("screenshots/after-start.png");
+  for (const width of [1280, 390]) {
+    await browser.viewport(width);
+    for (const scheme of ["light", "dark"] as const) {
+      await browser.scheme(scheme);
+      await browser.screenshot(`screenshots/start-${width}-${scheme}.png`);
+    }
+  }
   if (browser.errors.length) throw new Error(browser.errors.join(" | "));
 } finally {
   await browser.close();
 }
 ```
 
-Force a colour scheme: `await browser.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] })`.
+`viewport(width, height, true)` emulates a phone: the page's viewport meta then decides the layout width, as on a real device. For a drag, read the handle's centre with `getBoundingClientRect()` and pass page coordinates to `drag`.

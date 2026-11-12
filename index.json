@@ -66,11 +66,11 @@
     },
     {
       "approval": [],
-      "compatibility": "Chrome or Chromium with --headless=new (checked with Chrome on macOS, 2026-10-24). Node 22 or later for the built-in WebSocket and fetch (checked on Node 24.11). Any language with a WebSocket client works the same way.",
+      "compatibility": "The checks apply to any browser driver. The protocol names are from the Chrome DevTools protocol; the client in references/ needs Node 22 or later and was run on Node 24.11 with Chrome 157 on macOS, 2026-11-13.",
       "created": "2026-10-24",
       "depends": [],
-      "description": "Use when you need to click through a local web app in a real browser (smoke test, screenshots, UI check) and no browser-automation package such as Playwright is available or approved.",
-      "hash": "bb91a02b4530d0fa17e62067ccfcb195e46b8bf7a8b70c5bad54ea0776c7d138",
+      "description": "Use when checking a web app or page in a real browser before calling UI work done. Covers what to check, and how to drive headless Chrome when the project has no browser tooling.",
+      "hash": "0fc823ab97bb2fe7019b2df967cb8a2d0d2f5d32b865b62fa4dcd826e5cead8b",
       "id": "drive-web-app-in-headless-chrome",
       "name": "drive-web-app-in-headless-chrome",
       "origin": "own",
@@ -79,7 +79,7 @@
       "status": "candidate",
       "topic": "testing",
       "updated": "2026-11-13",
-      "verified": "2026-10-24"
+      "verified": "2026-11-13"
     },
     {
       "approval": [],
