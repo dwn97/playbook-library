@@ -5,10 +5,11 @@ metadata:
   status: "candidate"
   topic: "verification"
   created: "2026-10-13"
-  updated: "2026-10-13"
+  updated: "2026-11-13"
   verified: "2026-10-13"
   origin: "own"
   approval: "none"
+  skill: "yes"
 ---
 
 # A search result you can rest a conclusion on
@@ -44,3 +45,11 @@ An empty result has two explanations: nothing is there, or the search did not ru
 - A detail in the result that contradicts what you asked for, such as the wrong weekday or the wrong name, invalidates the result. Do not pass it on with a caveat.
 - A text replacement keyed on a short pattern also hits a second, unrelated place. Anchor it on surrounding words and compare before and after.
 - A headline number that comes from duplicated lines.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use search-that-proves-it-ran --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.

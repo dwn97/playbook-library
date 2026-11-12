@@ -6,10 +6,11 @@ metadata:
   status: "candidate"
   topic: "documents"
   created: "2026-10-13"
-  updated: "2026-10-13"
+  updated: "2026-11-13"
   verified: "2026-10-13"
   origin: "own"
   approval: "none"
+  skill: "yes"
 ---
 
 # Look at the rendered document before calling it done
@@ -47,3 +48,11 @@ A build that succeeds says the tool finished. It does not say the pages are righ
 - Text extraction cannot see overlap or overflow.
 - Cutting content to save pages before measuring what drives the page count. Forced page breaks often account for more than the text does.
 - Deleting the template's sample slide or page the wrong way can leave a file the viewer cannot open. Open the final file in a viewer, not only in the library that wrote it.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use verify-rendered-document --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.

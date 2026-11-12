@@ -6,10 +6,11 @@ metadata:
   status: "candidate"
   topic: "testing"
   created: "2026-10-24"
-  updated: "2026-10-24"
+  updated: "2026-11-13"
   verified: "2026-10-24"
   origin: "own"
   approval: "none"
+  skill: "yes"
 ---
 
 # Drive a local web app in headless Chrome over the DevTools protocol
@@ -49,3 +50,11 @@ To explore instead of running a fixed script, wrap the same commands in a small 
 - `click()` exists on HTML elements only; SVG shapes need a dispatched `MouseEvent`. Clickable cells built as buttons avoid this and work with the keyboard too.
 - An app that guards against cross-site requests may refuse a POST without a JSON content type or with a foreign `Origin`. Test helpers must send what the real page sends.
 - Headless Chrome followed the system's dark mode on macOS (2026-10-24), so screenshots can come out dark when the light theme was meant.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use drive-web-app-in-headless-chrome --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.

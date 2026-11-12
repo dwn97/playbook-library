@@ -16,7 +16,7 @@ Changing this file needs the owner's approval, a `decide` event in the log with 
 | `.cache/<source>.git` | bare clone of the pack at the pinned commit; ignored by git | `./pb source fetch` |
 | `.cache/lookups.jsonl` | a record of every search and every entry opened through `pb` on this machine; ignored by git. An installed entry that the harness loads leaves no record here | `./pb find` and `./pb show` |
 | `playbooks/<id>/` | the curated layer | agents, under sections 3 to 6 |
-| `<skill folder>/<id>` | outside the repository, in the folder a harness reads skills from (`~/.claude/skills/` for Claude Code): a link to `playbooks/<id>/` for each entry marked as a skill. Next to that folder, `pb`: a link to the command | `./pb install`, on the owner's yes |
+| `<skill folder>/<id>` | outside the repository, in the folder a harness reads skills from (`~/.claude/skills/` for Claude Code): a link to `playbooks/<id>/` for each entry marked as a skill. Next to that folder and inside it, `pb`: a link to the command | `./pb install`, on the owner's yes |
 | `log/events.jsonl` | every use, change and decision | `./pb log`; lines are only added |
 | `index.json`, `CATALOG.md`, `STATS.md`, `CHANGELOG.md` | generated views | `./pb build`; never edited by hand |
 | `README.md`, `CONTRACT.md`, `operations/*.md` | hand-written documentation | agents propose, the owner approves |
@@ -84,7 +84,7 @@ An entry marked `skill: "yes"` is linked into the harness's skill folder. The ha
 
       The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.
 
-- `./pb install` links exactly the entries marked this way and removes its links to entries that are retired or no longer marked. It also links the command next to the skill folder, so that `../..` from an installed entry reaches `pb` both when the path is followed through the link and when it is worked out by hand. It never replaces a folder or link it did not create.
+- `./pb install` links exactly the entries marked this way and removes its links to entries that are retired or no longer marked. It also links the command next to the skill folder and inside it, so that an installed entry reaches `pb` when `../..` is followed through the link, when it is worked out by hand, and when the two folders are counted from the file. It never replaces a folder or link it did not create.
 - Marking an entry as a skill, and any change to an installed entry, needs the owner's yes in that session: the change is live in every session at once.
 
 ## 4. Status and lifecycle

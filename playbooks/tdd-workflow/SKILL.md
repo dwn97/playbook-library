@@ -6,13 +6,14 @@ metadata:
   status: "candidate"
   topic: "testing"
   created: "2026-10-13"
-  updated: "2026-10-13"
+  updated: "2026-11-13"
   verified: "2026-10-13"
   origin: "ecc"
   origin-url: "https://github.com/affaan-m/ECC"
   origin-commit: "b92f181b3b748d1abbc2afd94af6aa7d8c8fca29"
   origin-path: "skills/tdd-workflow/SKILL.md"
   approval: "none"
+  skill: "yes"
 ---
 
 # Test-first workflow
@@ -44,3 +45,11 @@ Adapted from the upstream skill. What is kept is the part that is easy to skip: 
 - Upstream sets a coverage floor of 80% and prescribes end-to-end tests. Use the project's own standard.
 - Upstream starts by running a detector script that ships with that pack. It is not used here; step 1 replaces it.
 - When no test can be written first, as in an exploratory spike or pure layout work, say so. Write the test once the behaviour is known.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use tdd-workflow --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.

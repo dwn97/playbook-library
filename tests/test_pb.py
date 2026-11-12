@@ -201,9 +201,9 @@ class Checker(unittest.TestCase):
     # ---- sections 4 and 5: lifecycle and log
 
     def test_edit_needs_a_log_event(self):
-        self.append(self.skill("ingest-slide-deck"), "\n- One more pitfall.\n")
+        self.append(self.skill("vue-patterns"), "\n- One more pitfall.\n")
         self.fails("the content changed without a log event")
-        self.log("edit", "ingest-slide-deck", "--why", "added a pitfall")
+        self.log("edit", "vue-patterns", "--why", "added a pitfall")
         self.clean()
 
     def test_trusted_needs_a_promotion(self):
@@ -244,6 +244,7 @@ class Checker(unittest.TestCase):
 
     def test_retired_needs_an_event_and_keeps_its_directory(self):
         self.edit(self.skill("tdd-workflow"), 'status: "candidate"', 'status: "retired"')
+        self.edit(self.skill("tdd-workflow"), '  skill: "yes"\n', "")      # a retired entry is not installed
         self.fails("`retired` without a `retire` event")
         self.log("retire", "tdd-workflow", "--why", "test")
         self.clean()
@@ -294,12 +295,13 @@ class Checker(unittest.TestCase):
         self.assertEqual(by_hand, os.path.join(self.tmp, "home", ".claude", "pb"))
         env = {k: v for k, v in os.environ.items() if k != "PB_ROOT"}
         env.update(PB_NO_TRACE="1", PB_ACTOR="path-test")
-        for path in (followed, by_hand):
+        counted = os.path.join(self.skills(), "pb")   # "two folders above this file", counted from the file itself
+        for path in (followed, by_hand, counted):
             r = subprocess.run([path, "log", "use", "vue-patterns", "--task", "t", "--outcome", "helped",
                                 "--changed", "c"], capture_output=True, text=True, env=env)
             self.assertEqual(r.returncode, 0, path + ": " + r.stderr)
         with open(self.path("log", "events.jsonl"), encoding="utf-8") as f:
-            self.assertEqual(sum('"actor": "path-test"' in line for line in f), 2)   # both wrote to this library
+            self.assertEqual(sum('"actor": "path-test"' in line for line in f), 3)   # all three wrote to this library
         os.unlink(by_hand)
         self.assertFalse(os.path.exists(by_hand))     # without the command link the worked-out path leads nowhere
         self.assertTrue(os.path.exists(followed))

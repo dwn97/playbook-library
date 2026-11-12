@@ -1102,8 +1102,10 @@ def cmd_install(a):
             print(f"unlinked  {name}")
     for eid in want:
         link(os.path.join(base, eid), os.path.join(target, eid), eid)
-    # `../..` from <skill folder>/<id>/ lands beside the skill folder when the path is worked out by hand
+    # `../..` from <skill folder>/<id>/ lands beside the skill folder when the path is worked out by hand,
+    # and inside it when "two folders above this file" is counted from the file
     link(os.path.realpath(P("pb")), os.path.join(os.path.dirname(target), "pb"), "pb, beside the skill folder")
+    link(os.path.realpath(P("pb")), os.path.join(target, "pb"), "pb, inside the skill folder")
     if refused:
         sys.exit(1)
 

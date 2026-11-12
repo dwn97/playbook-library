@@ -6,10 +6,11 @@ metadata:
   status: "candidate"
   topic: "git"
   created: "2026-10-13"
-  updated: "2026-10-13"
+  updated: "2026-11-13"
   verified: "2026-10-13"
   origin: "own"
   approval: "destructive"
+  skill: "yes"
 ---
 
 # A bulk change across several repositories
@@ -46,3 +47,11 @@ The failure this prevents: checking some of the targets, finding them safe, and 
 - Bundling a large safe cleanup with a small risky one. The bundle carries the risk of its weakest item. Split them.
 - A file synced from cloud storage can be a placeholder that looks empty or corrupt. Open it before calling it broken.
 - In a repository shared with other people, propose the commands and let the user run them, unless told otherwise.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use bulk-change-across-repos --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.

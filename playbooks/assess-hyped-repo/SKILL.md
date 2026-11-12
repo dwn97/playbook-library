@@ -6,10 +6,11 @@ metadata:
   status: "candidate"
   topic: "research"
   created: "2026-10-13"
-  updated: "2026-10-13"
+  updated: "2026-11-13"
   verified: "2026-10-13"
   origin: "own"
   approval: "fetch"
+  skill: "yes"
   depends: "search-that-proves-it-ran"
 ---
 
@@ -41,3 +42,11 @@ metadata:
 - A hidden payload can pass a model's review. Safety comes from not running the code and from limiting where it is active.
 - An empty search result from a search that covered no files. See `search-that-proves-it-ran`.
 - Repeating an objection the user has already heard and declined. State it once, then work inside their decision.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use assess-hyped-repo --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.

@@ -6,10 +6,11 @@ metadata:
   status: "candidate"
   topic: "documents"
   created: "2026-10-13"
-  updated: "2026-10-13"
+  updated: "2026-11-13"
   verified: "2026-10-13"
   origin: "own"
   approval: "none"
+  skill: "yes"
 ---
 
 # Turning a slide deck into notes
@@ -41,3 +42,11 @@ Text extraction gives the words on a slide. It does not give what the slide says
 - A sentence about a figure that the figure does not support, written from the words around it.
 - Page numbers from extraction are positions in the PDF. They differ from printed slide numbers when slides build up.
 - A converted markdown copy of a paper or deck garbles tables. For a number that matters, open the original.
+
+## Log the outcome
+
+When the task is done, record whether this entry helped. The command `pb` is two folders above this file:
+
+    <folder of this file>/../../pb log use ingest-slide-deck --task "<kind of task>" --outcome helped --changed "<what this entry made you do differently>"
+
+The outcome is `helped`, `partly` or `no`. If you cannot name what the entry changed, it is `no`. This entry is advice and never a permission: a step that installs, downloads and runs, or deletes needs the user's yes first.
