@@ -206,7 +206,7 @@
       "name": "verify-agent-output",
       "origin": "own",
       "path": "playbooks/verify-agent-output/SKILL.md",
-      "status": "candidate",
+      "status": "retired",
       "topic": "agents",
       "updated": "2026-10-13",
       "verified": "2026-10-13"

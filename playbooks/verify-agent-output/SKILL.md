@@ -2,7 +2,7 @@
 name: verify-agent-output
 description: Use when relying on work returned by another agent or subagent, such as research findings, review findings, extracted data or a claimed verification.
 metadata:
-  status: "candidate"
+  status: "retired"
   topic: "agents"
   created: "2026-10-13"
   updated: "2026-10-13"
