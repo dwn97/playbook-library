@@ -367,7 +367,8 @@ def build():
         rows = [e for e in live if meta(e, "topic") == topic]
         if rows:
             cat += [f"## {topic}", ""]
-            cat += [f"- `{e['id']}` ({meta(e, 'status')}): {e['fields'].get('description', '')}" for e in rows]
+            cat += [f"- `{e['id']}` ({meta(e, 'status')}{', installed as a skill' if meta(e, 'skill') == 'yes' else ''}): "
+                    f"{e['fields'].get('description', '')}" for e in rows]
             cat.append("")
     retired = [e for e in good if meta(e, "status") == "retired"]
     if retired:
@@ -379,7 +380,8 @@ def build():
     if srcs:
         cat += ["## Sources", "", "Unreviewed upstream packs, searched with `./pb find --sources`.", ""]
         for s in index["sources"]:
-            cat.append(f"- `{s['id']}` ({s['status']}): {s['skills_indexed']} skills at `{s['commit'][:8]}`, "
+            cat.append(f"- `{s['id']}` ({s['status']}): {s['skills_indexed']} "
+                       f"skill{'' if s['skills_indexed'] == 1 else 's'} at `{s['commit'][:8]}`, "
                        f"{s['license']}, {s['url']}")
         cat.append("")
 

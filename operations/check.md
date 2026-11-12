@@ -17,6 +17,9 @@ Fix the cause. Never make a violation go away by weakening the contract, by edit
 | a trusted entry changed since its last passing review | The owner or an independent reviewer reads the new text; record it with `./pb log review <id> --reviewer owner --verdict pass`. Until then the check stays red, which is the point. |
 | the steps contain a command of an approval class that is not declared | Add the class to `approval`, or remove the command if the entry does not need it. |
 | invisible characters, an HTML comment, a base64 block, an email address, a home-directory path, or text that claims to grant permission | Remove it. If it arrived with adapted source text, tell the owner: that is a finding about the source. |
+| an installed entry's body does not end with the `## Log the outcome` section | Put the section back as the last thing in the body, word for word from section 3 of the contract with the entry's id filled in. Changing an installed entry needs the owner's yes. |
+| the `skill` mark is on a retired entry | Remove the mark, then run `./pb install` on the owner's yes so that the link goes too. |
+| a `confirm` names something that is not a `use`, or a use has more than one | `./pb log` refuses to write either, so the log was edited by hand. Restore `log/events.jsonl` from git. |
 | a generated file differs from a fresh build | `./pb build`. Never edit a generated file. |
 | committed log lines changed or were removed | Restore `log/events.jsonl` from git. Corrections are new events. |
 | a document names a command or option that does not exist | Correct the document, or tell the owner the command is missing. |
